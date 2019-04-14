@@ -4,7 +4,7 @@ import random
 class StudentAgent(RandomAgent):
     def __init__(self, name):
         super().__init__(name)
-        self.MaxDepth = 1
+        self.MaxDepth = 4
 
 
     def get_move(self, board):
@@ -87,6 +87,77 @@ class StudentAgent(RandomAgent):
             next_state(turn)
             winner()
         """
-				
-        return random.uniform(0, 1)
+        if self.id == 1:
+            opponent_id = 2
+        else:
+            opponent_id = 1
+
+        if board.winner() == self.id:
+            print("win")
+            return 10000
+        elif board.winner() == opponent_id:
+            return 0
+
+        size_y = board.height
+        size_x = board.width
+        map_ = []
+        num_to_connect = board.num_to_connect
+        total_points = 0
+
+        # initialise the zones maps
+        for i in range(size_y):
+            map_.append([])
+            for j in range(size_x):
+                map_[i].append([])
+
+        # Fill in the horizontal win positions
+        for i in range(size_y):
+            for j in range(size_x-num_to_connect+1):
+                points = 0
+                for k in range(num_to_connect):
+                    if board.board[i][j + k] == opponent_id:
+                        points = 0
+                        break
+                    elif board.board[i][j + k] == self.id:
+                        points += 1
+                total_points += points^2
+
+        # Fill in the vertical win positions
+        for i in range(size_x):
+            for j in range(size_y-num_to_connect+1):
+                points = 0
+                for k in range(num_to_connect):
+                    if board.board[j + k][i] == opponent_id:
+                        points = 0
+                        break
+                    elif board.board[j + k][i] == self.id:
+                        points += 1
+                total_points += points^2
+
+        # Fill in the forward diagonal win positions
+        for i in range(size_y - num_to_connect + 1):
+            for j in range(size_x-num_to_connect+1):
+                points =0
+                for k in range(num_to_connect):
+                    if board.board[i+k][j+k] == opponent_id:
+                        points = 0
+                        break
+                    elif board.board[i+k][j+k] == self.id:
+                        points += 1
+                total_points += points^2
+
+        # Fill in the backward diagonal win positions
+        for i in range(size_y - num_to_connect + 1):
+            for j in range(size_x - 1, num_to_connect - 1 - 1, -1):
+                points = 0
+                for k in range(num_to_connect):
+                    if board.board[i + k][j - k] == opponent_id:
+                        points = 0
+                        break
+                    elif board.board[i + k][j - k] == self.id:
+                        points += 1
+                total_points += points^2
+        return total_points
+
+
 
