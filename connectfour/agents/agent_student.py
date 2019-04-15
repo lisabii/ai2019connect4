@@ -4,7 +4,7 @@ import random
 class StudentAgent(RandomAgent):
     def __init__(self, name):
         super().__init__(name)
-        self.MaxDepth = 4
+        self.MaxDepth = 5
 
 
     def get_move(self, board):
@@ -20,8 +20,11 @@ class StudentAgent(RandomAgent):
         vals = []
         moves = []
 
+
         for move in valid_moves:
             next_state = board.next_state(self.id, move[1])
+            if next_state.winner() == self.id:
+                return move
             moves.append( move )
             vals.append( self.dfMiniMax(next_state, 1) )
 
@@ -93,10 +96,9 @@ class StudentAgent(RandomAgent):
             opponent_id = 1
 
         if board.winner() == self.id:
-            print("win")
             return 10000
         elif board.winner() == opponent_id:
-            return 0
+            return -1
 
         size_y = board.height
         size_x = board.width
