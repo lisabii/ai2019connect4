@@ -1,11 +1,11 @@
 from connectfour.agents.computer_player import RandomAgent
 import random
 
+
 class StudentAgent(RandomAgent):
     def __init__(self, name):
         super().__init__(name)
         self.MaxDepth = 5
-
 
     def get_move(self, board):
         """
@@ -20,20 +20,20 @@ class StudentAgent(RandomAgent):
         vals = []
         moves = []
 
-
         for move in valid_moves:
             next_state = board.next_state(self.id, move[1])
+            # if the next move is winnable, go for it
             if next_state.winner() == self.id:
                 return move
-            moves.append( move )
-            vals.append( self.dfMiniMax(next_state, 1) )
+            moves.append(move)
+            vals.append(self.dfMiniMax(next_state, 1))
 
-        bestMove = moves[vals.index( max(vals) )]
+        bestMove = moves[vals.index(max(vals))]
         return bestMove
 
     def dfMiniMax(self, board, depth):
         # Goal return column with maximized scores of all possible next states
-        
+
         if depth == self.MaxDepth:
             return self.evaluateBoardState(board)
 
@@ -46,11 +46,10 @@ class StudentAgent(RandomAgent):
                 next_state = board.next_state(self.id % 2 + 1, move[1])
             else:
                 next_state = board.next_state(self.id, move[1])
-                
-            moves.append( move )
-            vals.append( self.dfMiniMax(next_state, depth + 1) )
 
-        
+            moves.append(move)
+            vals.append(self.dfMiniMax(next_state, depth + 1))
+
         if depth % 2 == 1:
             bestVal = min(vals)
         else:
@@ -66,7 +65,7 @@ class StudentAgent(RandomAgent):
             If we have won the game, return 1.
             If neither of the players has won, return a random number.
         """
-        
+
         """
         These are the variables and functions for board objects which may be helpful when creating your Agent.
         Look into board.py for more information/descriptions of each, or to look for any other definitions which may help you.
@@ -106,6 +105,9 @@ class StudentAgent(RandomAgent):
         num_to_connect = board.num_to_connect
         total_points = 0
 
+        # basically this function is calculating all the possible win positions
+        # more pieces in a possible win position will be counted with more weights
+        # a win position with X pieces in it will be counted as X^2 points
         # initialise the zones maps
         for i in range(size_y):
             map_.append([])
@@ -114,7 +116,7 @@ class StudentAgent(RandomAgent):
 
         # Fill in the horizontal win positions
         for i in range(size_y):
-            for j in range(size_x-num_to_connect+1):
+            for j in range(size_x - num_to_connect + 1):
                 points = 0
                 for k in range(num_to_connect):
                     if board.board[i][j + k] == opponent_id:
@@ -122,11 +124,11 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[i][j + k] == self.id:
                         points += 1
-                total_points += points^2
+                total_points += points ^ 2
 
         # Fill in the vertical win positions
         for i in range(size_x):
-            for j in range(size_y-num_to_connect+1):
+            for j in range(size_y - num_to_connect + 1):
                 points = 0
                 for k in range(num_to_connect):
                     if board.board[j + k][i] == opponent_id:
@@ -134,19 +136,19 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[j + k][i] == self.id:
                         points += 1
-                total_points += points^2
+                total_points += points ^ 2
 
         # Fill in the forward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
-            for j in range(size_x-num_to_connect+1):
-                points =0
+            for j in range(size_x - num_to_connect + 1):
+                points = 0
                 for k in range(num_to_connect):
-                    if board.board[i+k][j+k] == opponent_id:
+                    if board.board[i + k][j + k] == opponent_id:
                         points = 0
                         break
-                    elif board.board[i+k][j+k] == self.id:
+                    elif board.board[i + k][j + k] == self.id:
                         points += 1
-                total_points += points^2
+                total_points += points ^ 2
 
         # Fill in the backward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
@@ -158,8 +160,5 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[i + k][j - k] == self.id:
                         points += 1
-                total_points += points^2
+                total_points += points ^ 2
         return total_points
-
-
-
