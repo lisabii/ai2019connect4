@@ -132,7 +132,7 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[i][j + k] == self.id:
                         points += 1
-                total_points += points ^ 2
+                total_points += points
 
         # Fill in the vertical win positions
         for i in range(size_x):
@@ -144,7 +144,7 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[j + k][i] == self.id:
                         points += 1
-                total_points += points ^ 2
+                total_points += points
 
         # Fill in the forward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
@@ -156,7 +156,7 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[i + k][j + k] == self.id:
                         points += 1
-                total_points += points ^ 2
+                total_points += points
 
         # Fill in the backward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
@@ -168,5 +168,5 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[i + k][j - k] == self.id:
                         points += 1
-                total_points += points ^ 2
+                total_points += points
         return total_points
