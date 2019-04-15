@@ -1,6 +1,7 @@
 import argparse
 from pydoc import locate
 
+from connectfour.agents.agent_student_test import StudentAgentTest
 from connectfour.ui import start_game
 from connectfour.board import Board
 from connectfour.agents.computer_player import MonteCarloAgent, RandomAgent
@@ -17,6 +18,7 @@ PLAYER_TYPE_MAP = {
     'RandomAgent': RandomAgent,
     'MonteCarloAgent': MonteCarloAgent,
     'StudentAgent' : StudentAgent,
+    'StudentAgentTest' : StudentAgentTest
     #'HardAgent' : HardAgent,
 }
 
