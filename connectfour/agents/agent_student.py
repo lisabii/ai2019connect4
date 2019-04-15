@@ -53,9 +53,10 @@ class StudentAgent(RandomAgent):
                 next_state = board.next_state(self.id, move[1])
 
             moves.append(move)
-            if next_state.winner() == opponent_id:
+            winner = next_state.winner()
+            if winner == opponent_id:
                 vals.append(-1)
-            elif next_state.winner() == self.id:
+            elif winner == self.id:
                 vals.append(1000)
             else:
                 vals.append(self.dfMiniMax(next_state, depth + 1))
