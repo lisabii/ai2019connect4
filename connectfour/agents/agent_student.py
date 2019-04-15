@@ -41,6 +41,11 @@ class StudentAgent(RandomAgent):
         vals = []
         moves = []
 
+        if self.id == 1:
+            opponent_id = 2
+        else:
+            opponent_id = 1
+
         for move in valid_moves:
             if depth % 2 == 1:
                 next_state = board.next_state(self.id % 2 + 1, move[1])
@@ -48,13 +53,22 @@ class StudentAgent(RandomAgent):
                 next_state = board.next_state(self.id, move[1])
 
             moves.append(move)
-            vals.append(self.dfMiniMax(next_state, depth + 1))
+            if next_state.winner() == opponent_id:
+                vals.append(-1)
+            elif next_state.winner() == self.id:
+                vals.append(1000)
+            else:
+                vals.append(self.dfMiniMax(next_state, depth + 1))
 
         if depth % 2 == 1:
             bestVal = min(vals)
         else:
             bestVal = max(vals)
 
+        if depth == 2:
+            print("depth2 ", bestVal)
+        elif depth == 1:
+            print("depth1 ", bestVal)
         return bestVal
 
     def evaluateBoardState(self, board):
@@ -93,11 +107,6 @@ class StudentAgent(RandomAgent):
             opponent_id = 2
         else:
             opponent_id = 1
-
-        if board.winner() == self.id:
-            return 10000
-        elif board.winner() == opponent_id:
-            return -1
 
         size_y = board.height
         size_x = board.width
