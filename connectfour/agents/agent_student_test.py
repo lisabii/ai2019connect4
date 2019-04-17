@@ -55,7 +55,7 @@ class StudentAgentTest(RandomAgent):
             moves.append(move)
             winner = next_state.winner()
             if winner == opponent_id:
-                vals.append(-1)
+                vals.append(-1000)
             elif winner == self.id:
                 vals.append(1000)
             else:
@@ -126,47 +126,59 @@ class StudentAgentTest(RandomAgent):
         for i in range(size_y):
             for j in range(size_x - num_to_connect + 1):
                 points = 0
+                opponent_points = 0
                 for k in range(num_to_connect):
                     if board.board[i][j + k] == opponent_id:
-                        points = 0
-                        break
+                        opponent_points += 1
                     elif board.board[i][j + k] == self.id:
                         points += 1
-                total_points += points
+                if opponent_points == 0:
+                    total_points += points
+                elif points == 0:
+                    total_points -= opponent_points
 
         # Fill in the vertical win positions
         for i in range(size_x):
             for j in range(size_y - num_to_connect + 1):
                 points = 0
+                opponent_points = 0
                 for k in range(num_to_connect):
                     if board.board[j + k][i] == opponent_id:
-                        points = 0
-                        break
+                        opponent_points += 1
                     elif board.board[j + k][i] == self.id:
                         points += 1
-                total_points += points
+                if opponent_points == 0:
+                    total_points += points
+                elif points == 0:
+                    total_points -= opponent_points
 
         # Fill in the forward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
             for j in range(size_x - num_to_connect + 1):
                 points = 0
+                opponent_points = 0
                 for k in range(num_to_connect):
                     if board.board[i + k][j + k] == opponent_id:
-                        points = 0
-                        break
+                        opponent_points += 1
                     elif board.board[i + k][j + k] == self.id:
                         points += 1
-                total_points += points
+                if opponent_points == 0:
+                    total_points += points
+                elif points == 0:
+                    total_points -= opponent_points
 
         # Fill in the backward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
             for j in range(size_x - 1, num_to_connect - 1 - 1, -1):
                 points = 0
+                opponent_points = 0
                 for k in range(num_to_connect):
                     if board.board[i + k][j - k] == opponent_id:
-                        points = 0
-                        break
+                        opponent_points += 1
                     elif board.board[i + k][j - k] == self.id:
                         points += 1
-                total_points += points
+                if opponent_points == 0:
+                    total_points += points
+                elif points == 0:
+                    total_points -= opponent_points
         return total_points
