@@ -57,7 +57,7 @@ class StudentAgent(RandomAgent):
             if winner == opponent_id:
                 vals.append(-1)
             elif winner == self.id:
-                vals.append(1000)
+                vals.append(10000)
             else:
                 vals.append(self.dfMiniMax(next_state, depth + 1))
 
@@ -137,14 +137,18 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[i][j + k] == self.id:
                         points += len(board.winning_zones[j+k][i])
-                total_points += points
                 if points == 3:
                     if j - 1 >= 0 and board.board[i][j + 3] == 0 and board.board[i][j - 1] == 0 \
                             and board.try_move(j + 3) == i and board.try_move(j - 1) == i:
-                        return 1000
-                    if j + 4 < size_y and board.board[i][j + 4] == 0 and board.board[i][j] == 0 \
+                        return 10000
+                    elif j + 4 < size_y and board.board[i][j + 4] == 0 and board.board[i][j] == 0 \
                             and board.try_move(j + 4) == i and board.try_move(j) == i:
-                        return 1000
+                        return 10000
+                    else:
+                        for k in range(num_to_connect):
+                            if board.board[i][j + k] == 0 and board.try_move(j + k) == i:
+                                points = 500
+                total_points += points
 
         # Fill in the vertical win positions
         for i in range(size_x):
@@ -168,14 +172,18 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[i + k][j + k] == self.id:
                         points += len(board.winning_zones[j+k][i+k])
-                total_points += points
                 if points == 3:
                     if i - 1 >= 0 and j - 1 >= 0 and board.board[i + 3][j + 3] == 0 and board.board[i - 1][j - 1] == 0 \
                             and board.try_move(j + 3) == i + 3 and board.try_move(j - 1) == i - 1:
-                        return 1000
-                    if i + 4 < size_y and j + 4 < size_x and board.board[i + 4][j + 4] == 0 and board.board[i][j] == 0 \
+                        return 10000
+                    elif i + 4 < size_y and j + 4 < size_x and board.board[i + 4][j + 4] == 0 and board.board[i][j] == 0 \
                             and board.try_move(j + 4) == i + 4 and board.try_move(j) == i:
-                        return 1000
+                        return 10000
+                    else:
+                        for k in range(num_to_connect):
+                            if board.board[i + k][j + k] == 0 and board.try_move(j + k) == i + k:
+                                points = 500
+                total_points += points
 
         # Fill in the backward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
@@ -187,12 +195,16 @@ class StudentAgent(RandomAgent):
                         break
                     elif board.board[i + k][j - k] == self.id:
                         points += len(board.winning_zones[j-k][i+k])
-                total_points += points
                 if points == 3:
                     if board.board[i + 3][j - 3] == 0 and board.board[i - 1][j + 1] == 0 \
                             and board.try_move(j - 3) == i + 3 and board.try_move(j + 1) == i - 1:
-                        return 1000
-                    if i + 4 < size_y and j - 4 >= 0 and board.board[i + 4][j - 4] == 0 and board.board[i][j] == 0 \
+                        return 10000
+                    elif i + 4 < size_y and j - 4 >= 0 and board.board[i + 4][j - 4] == 0 and board.board[i][j] == 0 \
                             and board.try_move(j - 4) == i + 4 and board.try_move(j) == i:
-                        return 1000
+                        return 10000
+                    else:
+                        for k in range(num_to_connect):
+                            if board.board[i + k][j - k] == 0 and board.try_move(j - k) == i + k:
+                                points = 500
+                total_points += points
         return total_points
