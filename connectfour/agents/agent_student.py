@@ -5,7 +5,7 @@ import random
 class StudentAgent(RandomAgent):
     def __init__(self, name):
         super().__init__(name)
-        self.MaxDepth = 5
+        self.MaxDepth = 4
 
     def get_move(self, board):
         """
@@ -72,7 +72,7 @@ class StudentAgent(RandomAgent):
 
     def evaluateBoardState(self, board):
         """
-        Your evaluation function should look at the current state and return a score for it. 
+        Your evaluation function should look at the current state and return a score for it.
         As an example, the random agent provided works as follows:
             If the opponent has won this game, return -1.
             If we have won the game, return 1.
@@ -107,6 +107,11 @@ class StudentAgent(RandomAgent):
         else:
             opponent_id = 1
 
+        winner = board.winner()
+        if winner == self.id:
+            return 1000
+        elif winner == opponent_id:
+            return -1
         size_y = board.height
         size_x = board.width
         map_ = []
@@ -131,8 +136,15 @@ class StudentAgent(RandomAgent):
                         points = 0
                         break
                     elif board.board[i][j + k] == self.id:
-                        points += 1
+                        points += len(board.winning_zones[j+k][i])
                 total_points += points
+                if points == 3:
+                    if j - 1 >= 0 and board.board[i][j + 3] == 0 and board.board[i][j - 1] == 0 \
+                            and board.try_move(j + 3) == i and board.try_move(j - 1) == i:
+                        return 1000
+                    if j + 4 < size_y and board.board[i][j + 4] == 0 and board.board[i][j] == 0 \
+                            and board.try_move(j + 4) == i and board.try_move(j) == i:
+                        return 1000
 
         # Fill in the vertical win positions
         for i in range(size_x):
@@ -140,10 +152,10 @@ class StudentAgent(RandomAgent):
                 points = 0
                 for k in range(num_to_connect):
                     if board.board[j + k][i] == opponent_id:
-                        points = 0
+                        points =0
                         break
                     elif board.board[j + k][i] == self.id:
-                        points += 1
+                        points += len(board.winning_zones[i][j+k])
                 total_points += points
 
         # Fill in the forward diagonal win positions
@@ -155,8 +167,15 @@ class StudentAgent(RandomAgent):
                         points = 0
                         break
                     elif board.board[i + k][j + k] == self.id:
-                        points += 1
+                        points += len(board.winning_zones[j+k][i+k])
                 total_points += points
+                if points == 3:
+                    if i - 1 >= 0 and j - 1 >= 0 and board.board[i + 3][j + 3] == 0 and board.board[i - 1][j - 1] == 0 \
+                            and board.try_move(j + 3) == i + 3 and board.try_move(j - 1) == i - 1:
+                        return 1000
+                    if i + 4 < size_y and j + 4 < size_x and board.board[i + 4][j + 4] == 0 and board.board[i][j] == 0 \
+                            and board.try_move(j + 4) == i + 4 and board.try_move(j) == i:
+                        return 1000
 
         # Fill in the backward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
@@ -167,6 +186,13 @@ class StudentAgent(RandomAgent):
                         points = 0
                         break
                     elif board.board[i + k][j - k] == self.id:
-                        points += 1
+                        points += len(board.winning_zones[j-k][i+k])
                 total_points += points
+                if points == 3:
+                    if board.board[i + 3][j - 3] == 0 and board.board[i - 1][j + 1] == 0 \
+                            and board.try_move(j - 3) == i + 3 and board.try_move(j + 1) == i - 1:
+                        return 1000
+                    if i + 4 < size_y and j - 4 >= 0 and board.board[i + 4][j - 4] == 0 and board.board[i][j] == 0 \
+                            and board.try_move(j - 4) == i + 4 and board.try_move(j) == i:
+                        return 1000
         return total_points
