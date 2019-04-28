@@ -13,7 +13,7 @@ class StudentAgent(RandomAgent):
             board: An instance of `Board` that is the current state of the board.
 
         Returns:
-            A tuple of two integers, (row, col)
+            A tuple of two integers, (row, col).
         """
 
         valid_moves = board.valid_moves()
