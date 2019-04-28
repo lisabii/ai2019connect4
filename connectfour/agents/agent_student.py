@@ -57,7 +57,7 @@ class StudentAgent(RandomAgent):
             if winner == opponent_id:
                 vals.append(-1)
             elif winner == self.id:
-                vals.append(10000)
+                vals.append(100000)
             else:
                 vals.append(self.dfMiniMax(next_state, depth + 1))
 
@@ -109,7 +109,7 @@ class StudentAgent(RandomAgent):
 
         winner = board.winner()
         if winner == self.id:
-            return 1000
+            return 100000
         elif winner == opponent_id:
             return -1
         size_y = board.height
@@ -118,6 +118,8 @@ class StudentAgent(RandomAgent):
         num_to_connect = board.num_to_connect
         total_points = 0
 
+        multiply = 20
+        maxvalue = 100000
         # basically this function is calculating all the possible win positions
         # more pieces in a possible win position will be counted with more weights
         # a win position with X pieces in it will be counted as X^2 points
@@ -131,80 +133,89 @@ class StudentAgent(RandomAgent):
         for i in range(size_y):
             for j in range(size_x - num_to_connect + 1):
                 points = 0
+                pieces_count = 0
                 for k in range(num_to_connect):
                     if board.board[i][j + k] == opponent_id:
                         points = 0
                         break
                     elif board.board[i][j + k] == self.id:
                         points += len(board.winning_zones[j+k][i])
-                if points == 3:
+                        pieces_count += 1
+                if pieces_count == 3:
                     if j - 1 >= 0 and board.board[i][j + 3] == 0 and board.board[i][j - 1] == 0 \
                             and board.try_move(j + 3) == i and board.try_move(j - 1) == i:
-                        return 10000
+                        return maxvalue
                     elif j + 4 < size_y and board.board[i][j + 4] == 0 and board.board[i][j] == 0 \
                             and board.try_move(j + 4) == i and board.try_move(j) == i:
-                        return 10000
+                        return maxvalue
                     else:
                         for k in range(num_to_connect):
                             if board.board[i][j + k] == 0 and board.try_move(j + k) == i:
-                                points = 500
+                                points *= multiply
                 total_points += points
 
         # Fill in the vertical win positions
         for i in range(size_x):
             for j in range(size_y - num_to_connect + 1):
                 points = 0
+                pieces_count = 0
                 for k in range(num_to_connect):
                     if board.board[j + k][i] == opponent_id:
                         points =0
                         break
                     elif board.board[j + k][i] == self.id:
                         points += len(board.winning_zones[i][j+k])
+                        pieces_count += 1
+                points *= multiply
                 total_points += points
 
         # Fill in the forward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
             for j in range(size_x - num_to_connect + 1):
                 points = 0
+                pieces_count = 0
                 for k in range(num_to_connect):
                     if board.board[i + k][j + k] == opponent_id:
                         points = 0
                         break
                     elif board.board[i + k][j + k] == self.id:
                         points += len(board.winning_zones[j+k][i+k])
-                if points == 3:
+                        pieces_count += 1
+                if pieces_count == 3:
                     if i - 1 >= 0 and j - 1 >= 0 and board.board[i + 3][j + 3] == 0 and board.board[i - 1][j - 1] == 0 \
                             and board.try_move(j + 3) == i + 3 and board.try_move(j - 1) == i - 1:
-                        return 10000
+                        return maxvalue
                     elif i + 4 < size_y and j + 4 < size_x and board.board[i + 4][j + 4] == 0 and board.board[i][j] == 0 \
                             and board.try_move(j + 4) == i + 4 and board.try_move(j) == i:
-                        return 10000
+                        return maxvalue
                     else:
                         for k in range(num_to_connect):
                             if board.board[i + k][j + k] == 0 and board.try_move(j + k) == i + k:
-                                points = 500
+                                points *= multiply
                 total_points += points
 
         # Fill in the backward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
             for j in range(size_x - 1, num_to_connect - 1 - 1, -1):
                 points = 0
+                pieces_count = 0
                 for k in range(num_to_connect):
                     if board.board[i + k][j - k] == opponent_id:
                         points = 0
                         break
                     elif board.board[i + k][j - k] == self.id:
                         points += len(board.winning_zones[j-k][i+k])
-                if points == 3:
+                        pieces_count += 1
+                if pieces_count == 3:
                     if board.board[i + 3][j - 3] == 0 and board.board[i - 1][j + 1] == 0 \
                             and board.try_move(j - 3) == i + 3 and board.try_move(j + 1) == i - 1:
-                        return 10000
+                        return maxvalue
                     elif i + 4 < size_y and j - 4 >= 0 and board.board[i + 4][j - 4] == 0 and board.board[i][j] == 0 \
                             and board.try_move(j - 4) == i + 4 and board.try_move(j) == i:
-                        return 10000
+                        return maxvalue
                     else:
                         for k in range(num_to_connect):
                             if board.board[i + k][j - k] == 0 and board.try_move(j - k) == i + k:
-                                points = 500
+                                points *= multiply
                 total_points += points
         return total_points
