@@ -37,6 +37,8 @@ class StudentAgent(RandomAgent):
         if depth == self.MaxDepth:
             return self.evaluateBoardState(board)
 
+        maxvalue = 100000
+        minvalue = -maxvalue
         valid_moves = board.valid_moves()
         vals = []
         moves = []
@@ -55,9 +57,9 @@ class StudentAgent(RandomAgent):
             moves.append(move)
             winner = next_state.winner()
             if winner == opponent_id:
-                vals.append(-1)
+                vals.append(minvalue)
             elif winner == self.id:
-                vals.append(100000)
+                vals.append(maxvalue)
             else:
                 vals.append(self.dfMiniMax(next_state, depth + 1))
 
@@ -107,19 +109,21 @@ class StudentAgent(RandomAgent):
         else:
             opponent_id = 1
 
+        maxvalue = 100000
+        minvalue = -maxvalue
         winner = board.winner()
         if winner == self.id:
-            return 100000
+            return maxvalue
         elif winner == opponent_id:
-            return -1
+            return minvalue
         size_y = board.height
         size_x = board.width
         map_ = []
         num_to_connect = board.num_to_connect
         total_points = 0
 
-        multiply = 20
-        maxvalue = 100000
+        multiply_reachable = 1
+        multiply_oddeven = 1
         # basically this function is calculating all the possible win positions
         # more pieces in a possible win position will be counted with more weights
         # a win position with X pieces in it will be counted as X^2 points
@@ -133,15 +137,17 @@ class StudentAgent(RandomAgent):
         for i in range(size_y):
             for j in range(size_x - num_to_connect + 1):
                 points = 0
-                pieces_count = 0
+                self_pieces_count = 0
+                opponent_pieces_count = 0
                 for k in range(num_to_connect):
                     if board.board[i][j + k] == opponent_id:
-                        points = 0
-                        break
+                        opponent_pieces_count += 1
                     elif board.board[i][j + k] == self.id:
                         points += len(board.winning_zones[j+k][i])
-                        pieces_count += 1
-                if pieces_count == 3:
+                        if (self.id == 1 and i % 2 == 1) or (self.id == 2 and i%2 == 0):
+                            points *= multiply_oddeven
+                        self_pieces_count += 1
+                if self_pieces_count == 3 and opponent_pieces_count == 0:
                     if j - 1 >= 0 and board.board[i][j + 3] == 0 and board.board[i][j - 1] == 0 \
                             and board.try_move(j + 3) == i and board.try_move(j - 1) == i:
                         return maxvalue
@@ -151,37 +157,55 @@ class StudentAgent(RandomAgent):
                     else:
                         for k in range(num_to_connect):
                             if board.board[i][j + k] == 0 and board.try_move(j + k) == i:
-                                points *= multiply
-                total_points += points
+                                points *= multiply_reachable
+                elif opponent_pieces_count == 3 and self_pieces_count == 0:
+                    if j - 1 >= 0 and board.board[i][j + 3] == 0 and board.board[i][j - 1] == 0 \
+                            and board.try_move(j + 3) == i and board.try_move(j - 1) == i:
+                        return minvalue
+                    elif j + 4 < size_y and board.board[i][j + 4] == 0 and board.board[i][j] == 0 \
+                            and board.try_move(j + 4) == i and board.try_move(j) == i:
+                        return minvalue
+                    # else:
+                    #     for k in range(num_to_connect):
+                    #         if board.board[i][j + k] == 0 and board.try_move(j + k) == i:
+                    #             points *= -multiply_reachable
+                if (opponent_pieces_count == 3 and self_pieces_count == 0) or opponent_pieces_count == 0:
+                    total_points += points
 
         # Fill in the vertical win positions
         for i in range(size_x):
             for j in range(size_y - num_to_connect + 1):
                 points = 0
-                pieces_count = 0
+                self_pieces_count = 0
                 for k in range(num_to_connect):
                     if board.board[j + k][i] == opponent_id:
-                        points =0
-                        break
+                        opponent_pieces_count += 1
                     elif board.board[j + k][i] == self.id:
                         points += len(board.winning_zones[i][j+k])
-                        pieces_count += 1
-                points *= multiply
-                total_points += points
+                        if (self.id == 1 and (j+k) % 2 == 1) or (self.id == 2 and (j+k)%2 == 0):
+                            points *= multiply_oddeven
+                        self_pieces_count += 1
+                points *= multiply_reachable
+                # if opponent_pieces_count == 3 and self_pieces_count == 0:
+                #     points *= -1
+                if (opponent_pieces_count == 3 and self_pieces_count == 0) or opponent_pieces_count == 0:
+                    total_points += points
 
         # Fill in the forward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
             for j in range(size_x - num_to_connect + 1):
                 points = 0
-                pieces_count = 0
+                self_pieces_count = 0
+                opponent_pieces_count = 0
                 for k in range(num_to_connect):
                     if board.board[i + k][j + k] == opponent_id:
-                        points = 0
-                        break
+                        opponent_pieces_count += 1
                     elif board.board[i + k][j + k] == self.id:
                         points += len(board.winning_zones[j+k][i+k])
-                        pieces_count += 1
-                if pieces_count == 3:
+                        if (self.id == 1 and (i+k) % 2 == 1) or (self.id == 2 and (i+k)%2 == 0):
+                            points *= multiply_oddeven
+                        self_pieces_count += 1
+                if self_pieces_count == 3 and opponent_pieces_count == 0:
                     if i - 1 >= 0 and j - 1 >= 0 and board.board[i + 3][j + 3] == 0 and board.board[i - 1][j - 1] == 0 \
                             and board.try_move(j + 3) == i + 3 and board.try_move(j - 1) == i - 1:
                         return maxvalue
@@ -191,22 +215,36 @@ class StudentAgent(RandomAgent):
                     else:
                         for k in range(num_to_connect):
                             if board.board[i + k][j + k] == 0 and board.try_move(j + k) == i + k:
-                                points *= multiply
-                total_points += points
+                                points *= multiply_reachable
+                elif opponent_pieces_count == 3 and self_pieces_count == 0:
+                    if i - 1 >= 0 and j - 1 >= 0 and board.board[i + 3][j + 3] == 0 and board.board[i - 1][j - 1] == 0 \
+                            and board.try_move(j + 3) == i + 3 and board.try_move(j - 1) == i - 1:
+                        return minvalue
+                    elif i + 4 < size_y and j + 4 < size_x and board.board[i + 4][j + 4] == 0 and board.board[i][j] == 0 \
+                            and board.try_move(j + 4) == i + 4 and board.try_move(j) == i:
+                        return minvalue
+                    # else:
+                    #     for k in range(num_to_connect):
+                    #         if board.board[i + k][j + k] == 0 and board.try_move(j + k) == i + k:
+                    #             points *= -multiply_reachable
+                if (opponent_pieces_count == 3 and self_pieces_count == 0) or opponent_pieces_count == 0:
+                    total_points += points
 
         # Fill in the backward diagonal win positions
         for i in range(size_y - num_to_connect + 1):
             for j in range(size_x - 1, num_to_connect - 1 - 1, -1):
                 points = 0
-                pieces_count = 0
+                self_pieces_count = 0
+                opponent_pieces_count = 0
                 for k in range(num_to_connect):
                     if board.board[i + k][j - k] == opponent_id:
-                        points = 0
-                        break
+                        opponent_pieces_count += 1
                     elif board.board[i + k][j - k] == self.id:
                         points += len(board.winning_zones[j-k][i+k])
-                        pieces_count += 1
-                if pieces_count == 3:
+                        if (self.id == 1 and (i+k) % 2 == 1) or (self.id == 2 and (i+k)%2 == 0):
+                            points *= multiply_oddeven
+                        self_pieces_count += 1
+                if self_pieces_count == 3 and self_pieces_count == 0:
                     if board.board[i + 3][j - 3] == 0 and board.board[i - 1][j + 1] == 0 \
                             and board.try_move(j - 3) == i + 3 and board.try_move(j + 1) == i - 1:
                         return maxvalue
@@ -216,6 +254,19 @@ class StudentAgent(RandomAgent):
                     else:
                         for k in range(num_to_connect):
                             if board.board[i + k][j - k] == 0 and board.try_move(j - k) == i + k:
-                                points *= multiply
-                total_points += points
+                                points *= multiply_reachable
+
+                elif opponent_pieces_count == 3 and self_pieces_count == 0:
+                    if board.board[i + 3][j - 3] == 0 and board.board[i - 1][j + 1] == 0 \
+                            and board.try_move(j - 3) == i + 3 and board.try_move(j + 1) == i - 1:
+                        return minvalue
+                    elif i + 4 < size_y and j - 4 >= 0 and board.board[i + 4][j - 4] == 0 and board.board[i][j] == 0 \
+                            and board.try_move(j - 4) == i + 4 and board.try_move(j) == i:
+                        return minvalue
+                    # else:
+                    #     for k in range(num_to_connect):
+                    #         if board.board[i + k][j - k] == 0 and board.try_move(j - k) == i + k:
+                    #             points *= -multiply_reachable
+                if (opponent_pieces_count == 3 and self_pieces_count == 0) or opponent_pieces_count == 0:
+                    total_points += points
         return total_points
