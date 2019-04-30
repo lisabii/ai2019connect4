@@ -270,3 +270,8 @@ class StudentAgent(RandomAgent):
                 if (opponent_pieces_count == 3 and self_pieces_count == 0) or opponent_pieces_count == 0:
                     total_points += points
         return total_points
+
+
+
+
+
