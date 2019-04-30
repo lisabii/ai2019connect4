@@ -165,10 +165,7 @@ class StudentAgent(RandomAgent):
                     elif j + 4 < size_y and board.board[i][j + 4] == 0 and board.board[i][j] == 0 \
                             and board.try_move(j + 4) == i and board.try_move(j) == i:
                         return minvalue
-                    # else:
-                    #     for k in range(num_to_connect):
-                    #         if board.board[i][j + k] == 0 and board.try_move(j + k) == i:
-                    #             points *= -multiply_reachable
+        
                 if (opponent_pieces_count == 3 and self_pieces_count == 0) or opponent_pieces_count == 0:
                     total_points += points
 
